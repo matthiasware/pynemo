@@ -10,4 +10,3 @@ class TProperties(unittest.TestCase):
     def test_getProperty(self):
         value = self.properties.getProperty("nmap","nmap.scan.sweep.arguments")
         self.assertEqual(value, "-T4 -sn")
-          
