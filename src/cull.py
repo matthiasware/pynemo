@@ -39,6 +39,7 @@ class cull:
 
         for mac in newTargets:
             print(mac)
+
             #check if exists
             #   if scancount < 1
             #       get arguments for new host

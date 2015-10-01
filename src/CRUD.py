@@ -54,6 +54,21 @@ class CRUD:
         self.uptimepath = "%s/%s" % (self.dir, uptime)
         self.metapath = "%s/%s" % (self.dir, meta)
 
+    def selectAllFromMacByMac(self,mac):
+        conn = sqlite3.connect(self.metapath)
+        command = "select * from mac where mac='%s';" % (mac)
+        cursor = conn.execute(command)
+        result = {
+            "id" : cursor[0],
+            "mac" : cursor[1],
+            "fds" : cursor[2],
+            "lds" : cursor[3],
+            "scanned" : cursor[4],
+            "discoverd" : cursor[5]
+        }
+        conn.close()
+        return result;
+
     def createTables(self):
         self.createTableMAC()
         self.createTableIp()
