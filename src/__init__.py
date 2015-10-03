@@ -2,6 +2,7 @@
 
 from Properties import Properties
 from CRUD import CRUD
-from macaddress import macaddress
-from cull import cull
-from scan import scan
+from Host import Host
+from Cull import Cull
+from Scan import Scan
+from Butcher import Butcher

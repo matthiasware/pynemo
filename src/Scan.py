@@ -2,7 +2,7 @@
 import threading
 import nmap
 
-class scan (threading.Thread):
+class Scan (threading.Thread):
     def __init__(self, hosts, arguments, sudo):
         threading.Thread.__init__(self)
         self.arguments = arguments
@@ -10,5 +10,5 @@ class scan (threading.Thread):
         self.sudo=sudo
 
     def run(self):
-        nm = nmap.PortScanner()
-        self.result = nm.scan(hosts=self.hosts,arguments=self.arguments, sudo=self.sudo)
+        self.nm = nmap.PortScanner()
+        self.nm.scan(hosts=self.hosts,arguments=self.arguments, sudo=self.sudo)

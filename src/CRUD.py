@@ -45,7 +45,6 @@ class CRUD:
     def __init__(self, properties):
         self.properties = properties
         self.dir = self.properties.getProjectDirectory()
-        self.dir += self.properties.getProperty("database","dir")
         self.createDatabaseConnection()
 
     def createDatabaseConnection(self):
