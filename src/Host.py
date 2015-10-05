@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 class Host:
-    def __init__(self,id,mac,ip, hostname,lds,fds,scanned,discoverd):
+    def __init__(self,mac,ip,hostname):
         self.mac=mac
-        self.ip = ip,
-        self.hostname = hostname,
+        self.ip=ip
+        self.hostname=hostname
 
 

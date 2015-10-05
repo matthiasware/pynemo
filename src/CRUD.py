@@ -46,6 +46,7 @@ class CRUD:
         self.properties = properties
         self.dir = self.properties.getProjectDirectory()
         self.createDatabaseConnection()
+        self.createTables()
 
     def createDatabaseConnection(self):
         uptime = self.properties.getProperty("database", "uptime.name")
@@ -54,19 +55,124 @@ class CRUD:
         self.metapath = "%s/%s" % (self.dir, meta)
 
     def selectAllFromMacByMac(self,mac):
-        conn = sqlite3.connect(self.metapath)
-        command = "select * from mac where mac='%s';" % (mac)
-        cursor = conn.execute(command)
-        result = {
-            "id" : cursor[0],
-            "mac" : cursor[1],
-            "fds" : cursor[2],
-            "lds" : cursor[3],
-            "scanned" : cursor[4],
-            "discoverd" : cursor[5]
-        }
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.execute("select * from macaddress where mac=?",(mac,))
+        row = cursor.fetchone()
+        if row == None:
+            conn.close()
+            return None
+        else:
+            result = {"id":row[0],"mac":row[1],"fds":row[2],"lds":row[3],"scanned":row[4],"discovered":row[5]}
+            conn.close()
+            return result
+
+    def selectAllFromHostnameByHostname(self,hostname):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.execute("select * from hostnames where host=?",(hostname,))
+        row = cursor.fetchone()
+        if row == None:
+            conn.close()
+            return None
+        else:
+            result = {"id":row[0],"host":row[1],"fds":row[2],"lds":row[3],"scanned":row[4],"discovered":row[5]}
+            conn.close()
+            return result
+
+    def selectAllFromIpsByIp(self,ip):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.execute("select * from ipaddress where ip=?",(ip,))
+        row = cursor.fetchone()
+        if row == None:
+            conn.close()
+            return None
+        else:
+            result = {"id":row[0],"ip":row[1],"fds":row[2],"lds":row[3],"scanned":row[4],"discovered":row[5]}
+            conn.close()
+            return result
+
+    def insertIntoHostnames(self,hostname,fds,lds,scanned,discovered):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("insert into hostnames(host,fds,lds,scanned,discovered) values(?,?,?,?,?)",(hostname,fds,lds,scanned,discovered))
+        id=cursor.lastrowid
+        conn.commit()
         conn.close()
-        return result;
+        return id
+
+    def insertIntoIps(self,ip,fds,lds,scanned,discovered):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("insert into ipaddress(ip,fds,lds,scanned,discovered) values(?,?,?,?,?)",(ip,fds,lds,scanned,discovered))
+        id=cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return id
+
+    def updateHostnameDiscovered(self,hostname):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("update hostnames set discovered=discovered+1 where host=?", (hostname,))
+        conn.commit()
+        conn.close()
+
+    def updateIpDiscovered(self,ip):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("update ipaddress set discovered=discovered+1 where ip=?", (ip,))
+        conn.commit()
+        conn.close()
+
+
+    def insertIntoMacs(self,mac,fds,lds,scanned,discovered):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("insert into macaddress(mac,fds,lds,scanned,discovered) values(?,?,?,?,?)",(mac,fds,lds,scanned,discovered))
+        id=cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return id
+
+    def updateMacDiscovered(self,mac):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("update macaddress set discovered=discovered+1 where mac=?", (mac,))
+        conn.commit()
+        conn.close()
+
+    def insertIntoSweepscans(self,uphosts,hosts,date,elapsed,argument):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("insert into sweepscans(uphosts,hosts,date,elapsed,argument) values(?,?,?,?,?)", (uphosts,hosts,date,elapsed,argument))
+        idscan=cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return idscan
+
+    def selectAllFromSweepscan(self,id):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.execute("select * from sweepscans where id=?",(id,))
+        row = cursor.fetchone()
+        result = {"id":row[0],"uphosts":row[1],"hosts":row[2],"date":row[3],"elapsed":row[4],"argument":row[5]}
+        conn.close()
+        return result
+
+    def insertIntoUphosts(self,ip,host,mac,date,scan):
+        conn=sqlite3.connect(self.uptimepath)
+        cursor=conn.cursor()
+        cursor.execute("insert into ups(ip,host,mac,date,scan) values(?,?,?,?,?)",(ip,host,mac,date,scan))
+        idscan=cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return idscan
+
+    def selectAllFromUphostsById(self,id):
+        conn=sqlite3.connect(self.uptimepath)
+        cursor=conn.execute("select * from ups where id=?",(id,))
+        row = cursor.fetchone()
+        result = {"id":row[0],"ip":row[1],"host":row[2],"mac":row[3],"date":row[4],"scan":row[5]}
+        conn.close()
+        return result
+
 
     def createTables(self):
         self.createTableMAC()

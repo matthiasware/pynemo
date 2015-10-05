@@ -11,4 +11,4 @@ class Scan (threading.Thread):
 
     def run(self):
         self.nm = nmap.PortScanner()
-        self.nm.scan(hosts=self.hosts,arguments=self.arguments, sudo=self.sudo)
+        self.result = self.nm.scan(hosts=self.hosts,arguments=self.arguments, sudo=self.sudo)
