@@ -5,7 +5,8 @@ import CRUD
 import datetime
 
 class Butcher:
-    def __init__(self,properties,crud):
+    def __init__(self,properties,crud,logger):
+        self.logger=logger
         self.properties=properties
         self.crud=crud
 
@@ -47,28 +48,22 @@ class Butcher:
     def updateOrInsertMacs(self,mac,date):
         tableMac = self.crud.selectAllFromMacByMac(mac)
         if tableMac == None:
-            print("NEW mac: ",mac)
             self.crud.insertIntoMacs(mac,date,date,0,1)
         else:
-            print("UPDATE mac: ",mac)
             self.crud.updateMacDiscovered(mac)
 
     def updateOrInsertIps(self,ip,date):
         tableIp = self.crud.selectAllFromIpsByIp(ip)
         if tableIp == None:
-            print("NEW ip: ",ip)
             self.crud.insertIntoIps(ip,date,date,0,1)
         else:
-            print("UPDATE ip: ",ip)
             self.crud.updateIpDiscovered(ip)
 
     def updateOrInsertHostname(self,hostname,date):
         tableHostname = self.crud.selectAllFromHostnameByHostname(hostname)
         if tableHostname == None:
-            print("NEW hostname: ",hostname)
             self.crud.insertIntoHostnames(hostname,date,date,0,1)
         else:
-            print("UPDATE hostname: ",hostname)
             self.crud.updateHostnameDiscovered(hostname)
 
     def getIpFromHost(self,host):

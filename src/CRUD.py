@@ -42,7 +42,8 @@ class CRUD:
     "version" : "version text",
     }
 
-    def __init__(self, properties):
+    def __init__(self, properties,logger):
+        self.logger=logger
         self.properties = properties
         self.dir = self.properties.getProjectDirectory()
         self.createDatabaseConnection()

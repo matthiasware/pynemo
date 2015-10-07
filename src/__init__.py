@@ -8,3 +8,4 @@ from Scan import Scan
 from Butcher import Butcher
 from HostQueue import HostQueue
 from ScanBuilder import ScanBuilder
+from Logger import Logger

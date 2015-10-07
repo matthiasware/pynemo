@@ -2,24 +2,20 @@
 
 import Properties
 import Cull
-import Scan
 import Properties
 import Butcher
+import CRUD
+import Logger
+import HostQueue
+import ScanBuilder
 
 properties = Properties.Properties()
-sweepscan_arguments = properties.getProperty("sweep","arguments")
-sweepscan_hosts = properties.getProperty("sweep","hosts")
-sweepscan_intervall = properties.getProperty("sweep","intervall")
-sweepscan_sudo = properties.getProperty("sweep","sudo")
-
-
-initScan = Scan.Scan(hosts=sweepscan_hosts,arguments=sweepscan_arguments,sudo=sweepscan_sudo)
-initScan.start()
-initScan.join()
-scanner = initScan.nm
-
-butcher = Butcher.Butcher()
-butcher.getMacsAndIpFromScanResult(scanner)
+logger = Logger.Logger(properties)
+crud = CRUD.CRUD(properties,logger)
+hostQueue = HostQueue.HostQueue(properties,crud)
+scanBuilder = ScanBuilder.ScanBuilder(properties,crud)
+butcher = Butcher.Butcher(properties,crud,logger)
+cull = Cull.Cull(butcher,scanBuilder,properties,hostQueue,crud)
 
 #from properties get parallel scans
 #start sweep scan

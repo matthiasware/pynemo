@@ -4,7 +4,9 @@ import random
 
 class HostQueue:
 
-    def __init__(self):
+    def __init__(self,properties,crud):
+        self.crud=crud
+        self.prperties=properties
         self.hostqueue = []
 
     def calculateHostPriority(self,host):
