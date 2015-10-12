@@ -18,7 +18,8 @@ class Cull:
         self.hostQueue.updateAvailableHosts(hosts)
 
     def getScan(self):
-        return None
+        host = self.hostQueue.getHost()
+        return self.scanBuilder.getScan(host)
 
-    def setScanResult(self):
+    def setScanResult(self, scan):
         return None

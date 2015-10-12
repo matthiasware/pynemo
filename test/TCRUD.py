@@ -6,7 +6,8 @@ import datetime
 class TCRUD(unittest.TestCase):
     def setUp(self):
         self.properties = src.Properties()
-        self.crud = src.CRUD(self.properties)
+        self.logger = src.Logger(self.properties)
+        self.crud = src.CRUD(self.properties,self.logger)
         self.crud.createTables
 
     def test_insertAndSelectIntoAndFromUphosts(self):

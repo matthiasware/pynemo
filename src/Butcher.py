@@ -3,12 +3,36 @@ import Host
 import Properties
 import CRUD
 import datetime
+import ScanResult
+import ScanResultPort
 
 class Butcher:
     def __init__(self,properties,crud,logger):
         self.logger=logger
         self.properties=properties
         self.crud=crud
+
+    def processScan(self,scanner):
+        scanResult = ScanResult.ScanResult()
+        scanStats = scanner.scanstats()
+        scanResult.elapsed = scanStats["elapsed"]
+        scanResult.online = scanStats["uphosts"] == "1"
+        scanResult.date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return scanResult
+
+
+        return None
+        #update macaddress
+        #update ipaddress
+        #update hostnames
+        #update softvendors
+        # update ports
+        #update osinfo
+        # hardvendors
+        # protocolls
+        # services
+        # scan
+        # scan
 
     def processSweepScan(self,scanner):
         scanid = self.processSweepScanStats(scanner)
