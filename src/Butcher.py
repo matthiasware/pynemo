@@ -18,13 +18,48 @@ class Butcher:
         scanResult.elapsed = scanStats["elapsed"]
         scanResult.online = scanStats["uphosts"] == "1"
         scanResult.date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        scanResult.ip = scanner.all_hosts()[0]
+        print(scanner[scanResult.ip])
+        addresses = scanner[scanResult.ip]["addresses"]
+        scanResult.mac=addresses["mac"]
+        scanResult.arguments = scanner.command_line()
+        scanResult.hardvendor = scanner[scanResult.ip]["vendor"][scanResult.mac]
+        if "uptime" in scanner[scanResult.ip]:
+            scanResult.uptime =  scanner[scanResult.ip]["uptime"]["seconds"]
+        if "hostnames" in scanner[scanResult.ip]:
+            scanResult.hostname = scanner[scanResult.ip]["hostnames"][0]["name"]
+        if "osclass" in scanner[scanResult.ip]:
+            osclass = scanner[scanResult.ip]["osclass"]
+            if "vendor" in osclass:
+                scanResult.osvendor = osclass["vendor"]
+            if "accuracy" in osclass:
+                scanResult.osaccuracy = osclass["accuracy"]
+            if "osgen" in osclass:
+                scanResult.osgeneration = osclass["osgen"]
+            if "type" in osclass:
+                scanResult.ostype = osclass["type"]
+            if "osfamily" in osclass:
+                scanResult.osfamily = osclass["osfamily"]
+        if "tcp" in scanner[scanResult.ip]:
+            tcp = scanner[scanResult.ip]["tcp"]
+            for port in tcp:
+                scanPort = ScanResultPort.ScanResultPort()
+                portInformation = tcp[port]
+                scanPort.port = port
+                scanPort.state = portInformation["state"]
+                scanPort.product = portInformation["product"]
+                scanPort.conf = portInformation["conf"]
+                scanPort.name = portInformation["name"]
+                scanPort.reason = portInformation["reason"]
+                scanPort.cpe = portInformation["cpe"]
+                scanPort.version = portInformation["version"]
+                scanPort.extrainfo = portInformation["version"]
+                scanPort.protocol = "tcp"
+                scanResult.ports.append(scanPort)
+
+        self.writeScanResultToDatabase(scanResult)
+
         return scanResult
-
-
-        return None
-        #update macaddress
-        #update ipaddress
-        #update hostnames
         #update softvendors
         # update ports
         #update osinfo
@@ -33,6 +68,40 @@ class Butcher:
         # services
         # scan
         # scan
+
+    def writeScanResultToDatabase(self, scanResult):
+        self.crud.updateMacScanned(scanResult.mac, scanResult.date)
+        self.crud.updateIpScanned(scanResult.ip,scanResult.date)
+        self.crud.updateHostnameScanned(scanResult.hostname,scanResult.date)
+        if(scanResult.osvendor != None):
+            self.updateOrInsertSoftvendors(scanResult.osvendor,scanResult.date)
+        if(scanResult.hardvendor != None):
+            self.updateOrInsertHardvendors(scanResult.hardvendor,scanResult.date)
+        self.updateOrInsertOSInfo(scanResult)
+
+        return None
+
+    def updateOrInsertOSInfo(self,scanResult):
+        if (scanResult.osvendor != None) and (scanResult.osfamily != None) and (scanResult.osgeneration != None):
+            tableOsInfo = self.crud.selectAllFromOsInfo(scanResult.osvendor,scanResult.osfamily,scanResult.osgeneration)
+            if tableOsInfo == None:
+                self.crud.insertIntoOsInfo(scanResult.osvendor,scanResult.osfamily,scanResult.osgeneration,scanResult.date,scanResult.date,1)
+            else:
+                self.crud.updateOsInfo(scanResult.osvendor,scanResult.osfamily,scanResult.osgeneration,scanResult.date)
+
+    def updateOrInsertSoftvendors(self,softvendor,date):
+        tableSoftvendor = self.crud.selectAllFromSoftvendorBySoftvendor(softvendor)
+        if tableSoftvendor == None:
+            self.crud.insertIntoSoftvendor(softvendor,date,date,1)
+        else:
+            self.crud.updateSoftvendorScanned(softvendor,date)
+
+    def updateOrInsertHardvendors(self,hardvendor,date):
+        tableHardvendor = self.crud.selectAllFromHardvendorByHardvendor(hardvendor)
+        if tableHardvendor == None:
+            self.crud.insertIntoHardvendor(hardvendor,date,date,1)
+        else:
+            self.crud.updateHardvendorScanned(hardvendor,date)
 
     def processSweepScan(self,scanner):
         scanid = self.processSweepScanStats(scanner)

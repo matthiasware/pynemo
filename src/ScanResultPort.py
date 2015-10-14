@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-class ScanResutPort():
+class ScanResultPort():
     def __init__(self):
         self.port = None
         self.conf = None
@@ -10,5 +10,5 @@ class ScanResutPort():
         self.product = None
         self.version = None
         self.name = None
-        self.protocoll = None
-        self.extra = None
+        self.protocol = None
+        self.extrainfo = None

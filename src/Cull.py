@@ -21,5 +21,6 @@ class Cull:
         host = self.hostQueue.getHost()
         return self.scanBuilder.getScan(host)
 
+
     def setScanResult(self, scan):
         return None
