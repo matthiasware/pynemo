@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import sqlite3
+import os
 
 class CRUD:
 
     columns = {
-    "osaccuracy" : "accuracy integer",
+    "osaccuracy" : "osaccuracy integer",
     "argument" : "argument text",
     "conf" : "conf text",
     "cpe" : "cpe text",
@@ -72,6 +73,8 @@ class CRUD:
         self.createTableScanports()
         self.createTableUPS()
 
+    def deleteAll(self):
+        os.system("rm %s %s" % (self.uptimepath, self.metapath))
 
 #------------------- MAC --------------------------
 
@@ -304,16 +307,74 @@ class CRUD:
         port = [self.columns["id"],self.columns["port"],self.columns["fds"],self.columns["lds"],self.columns["scanned"]]
         self.createTableIfNotExists(self.metapath,"ports",port)
 
+    def updatePort(self,port,date):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("update ports set scanned=scanned+1,lds=? where port=? ", (date,port))
+        conn.commit()
+        conn.close()
+
+    def insertIntoPorts(self,port,fds,lds,scanned):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("insert into ports(port,fds,lds,scanned) values(?,?,?,?)",(port,fds,lds,scanned))
+        id=cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return id
+
+    def selectAllFromPorts(self,port):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.execute("select * from ports where port=?",(port,))
+        row = cursor.fetchone()
+        if row == None:
+            conn.close()
+            return None
+        else:
+            result = {"id":row[0],"port":row[1],"fds":row[2],"lds":row[3],"scanned":row[4]}
+            conn.close()
+            return result
+
+#------------------- Services --------------------------
+    def createTableServices(self):
+        service = [self.columns["id"],self.columns["service"],self.columns["version"],self.columns["product"],self.columns["fds"],self.columns["lds"],self.columns["scanned"]]
+        self.createTableIfNotExists(self.metapath,"services",service)
+
+    def updateService(self,service,version,product,date):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("update services set scanned=scanned+1,lds=? where service=? and version=? and product=?", (date,service,version,product))
+        conn.commit()
+        conn.close()
+
+    def insertIntoService(self,service,version,product,fds,lds,scanned):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("insert into services(service,version,product,fds,lds,scanned) values(?,?,?,?,?,?)",(service,version,product,fds,lds,scanned))
+        id=cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return id
+
+    def selectAllFromService(self,service,version,product):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.execute("select * from services where service=? and version=? and product=?",(service,version,product))
+        row = cursor.fetchone()
+        if row == None:
+            conn.close()
+            return None
+        else:
+            result = {"id":row[0],"service":row[1],"version":row[2],"product":row[3],"fds":row[4],"lds":row[5],"scanned":row[6]}
+            conn.close()
+            return result
+
+
 #------------------- Protocols --------------------------
     def createTableProtocolls(self):
         protocol = [self.columns["id"],self.columns["protocol"],self.columns["fds"],self.columns["lds"],self.columns["scanned"]]
         self.createTableIfNotExists(self.metapath,"protocols",protocol)
 
 
-#------------------- Services --------------------------
-    def createTableServices(self):
-        service = [self.columns["id"],self.columns["service"],self.columns["version"],self.columns["product"],self.columns["scanned"]]
-        self.createTableIfNotExists(self.metapath,"services",service)
 
 
 
@@ -332,9 +393,13 @@ class CRUD:
         conn=sqlite3.connect(self.metapath)
         cursor=conn.execute("select * from sweepscans where id=?",(id,))
         row = cursor.fetchone()
-        result = {"id":row[0],"uphosts":row[1],"hosts":row[2],"date":row[3],"elapsed":row[4],"argument":row[5]}
-        conn.close()
-        return result
+        if row == None:
+            conn.close()
+            return None
+        else:
+            result = {"id":row[0],"uphosts":row[1],"hosts":row[2],"date":row[3],"elapsed":row[4],"argument":row[5]}
+            conn.close()
+            return result
 
     def insertIntoSweepscans(self,uphosts,hosts,date,elapsed,argument):
         conn=sqlite3.connect(self.metapath)
@@ -359,6 +424,30 @@ class CRUD:
                 self.columns["osgeneration"],self.columns["osaccuracy"],self.columns["hardvendor"]]
         self.createTableIfNotExists(self.metapath,"scans",scan)
 
+    def insertIntoScan(self,mac,ip,host,date,arguments,elapsed,openports,scanfinished,osvendor,osfamily,osgeneration,osaccuracy,hardvendor):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("insert into scans(mac,ip,host,date,argument,elapsed,openports,scanfinished,osvendor,osfamily,osgeneration,osaccuracy,hardvendor) values(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                       (mac,ip,host,date,arguments,elapsed,openports,scanfinished,osvendor,osfamily,osgeneration,osaccuracy,hardvendor))
+        idscan=cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return idscan
+
+    def selectAllFromScan(self,id):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.execute("select * from scans where id=?",(id,))
+        row = cursor.fetchone()
+        if row == None:
+            conn.close()
+            return None
+        else:
+            result = {"id":row[0],"mac":row[1],"ip":row[2],"host":row[3],"date":row[4],"arguments":row[5],
+                      "elapsed":row[6],"openports":row[7],"scanfinished":row[8],"osvendor":row[9],"osfamily":row[10],
+                      "osgeneration":row[11],"osaccuracy":row[12],"hardvendor":row[13]}
+            conn.close()
+            return result
+
 
 #------------------- ScanPorts --------------------------
     def createTableScanports(self):
@@ -367,6 +456,29 @@ class CRUD:
                     self.columns["extrainfo"]]
         self.createTableIfNotExists(self.metapath,"scanports",scanport)
 
+    def insertIntoScanport(self,scan,port,conf,reason,cpe,state,protocol,version,name,product,extrainfo):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.cursor()
+        cursor.execute("insert into scanports(scan,port,conf,reason,cpe,state,protocol,version,name,product,extrainfo) values(?,?,?,?,?,?,?,?,?,?,?)",
+                       (scan,port,conf,reason,cpe,state,protocol,version,name,product,extrainfo))
+        id=cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return id
+
+    def selectAllFromScanportByScan(self,scan):
+        conn=sqlite3.connect(self.metapath)
+        cursor=conn.execute("select * from scanports where scan=?",(scan,))
+        row = cursor.fetchone()
+        if row == None:
+            conn.close()
+            return None
+        else:
+            result = {"id":row[0],"scan":row[1],"port":row[2],"conf":row[3],"reason":row[4],"cpe":row[5],
+                      "state":row[6],"protocol":row[7],"version":row[8],"name":row[9],"product":row[10],
+                      "extrainfo":row[11]}
+            conn.close()
+            return result
 
 #------------------- UPS --------------------------
     def createTableUPS(self):
@@ -392,7 +504,7 @@ class CRUD:
 
 
 
-
+#----------------------------------------------------
 
     def createTableIfNotExists(self, path,tablename,columnitems):
         conn = sqlite3.connect(path)

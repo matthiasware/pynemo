@@ -13,14 +13,14 @@ class TButcher(unittest.TestCase):
         self.nm = nmap.PortScanner()
 
 
-#    def test_setup(self):
- #       self.nm.scan(hosts="10.42.31.*",arguments="-sn -T4",sudo=True)
-  #      hostlist = self.butcher.processSweepScan(self.nm)
-   #     for index,host in enumerate(hostlist):
-    #        print(index,"-",host.mac,":",host.ip,":",host.hostname)
+    def test_setup(self):
+        self.nm.scan(hosts="10.42.31.*",arguments="-sn -T4",sudo=True)
+        hostlist = self.butcher.processSweepScan(self.nm)
+        #for index,host in enumerate(hostlist):
+            #print(index,"-",host.mac,":",host.ip,":",host.hostname)
 
     def test_processScan(self):
-        self.nm.scan(hosts="10.42.31.241",arguments="-O -sV -T4",sudo=True)
+        self.nm.scan(hosts="10.42.31.127",arguments="-O -sV -T4",sudo=True)
         result = self.butcher.processScan(self.nm)
         print("elapsed {0:>20}".format(result.elapsed))
         print("host {0:>20}".format(result.hostname))
@@ -29,7 +29,8 @@ class TButcher(unittest.TestCase):
         print("ip {0:>20}".format(result.ip))
         print("mac {0:>20}".format(result.mac))
         print("hardvendor {0:>20}".format(result.hardvendor))
-        print("uptime {0:>20}".format(result.uptime))
+        if result.uptime != None:
+            print("uptime {0:>20}".format(result.uptime))
         print("osvendor {0:>20}".format(result.osvendor))
         print("osaccuracy {0:>20}".format(result.osaccuracy))
         print("osgeneration {0:>20}".format(result.osgeneration))

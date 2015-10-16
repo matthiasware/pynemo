@@ -78,8 +78,25 @@ class Butcher:
         if(scanResult.hardvendor != None):
             self.updateOrInsertHardvendors(scanResult.hardvendor,scanResult.date)
         self.updateOrInsertOSInfo(scanResult)
+        self.updateOrInsertPorts(scanResult)
+        self.insertScan(scanResult)
 
         return None
+
+    def insertScan(self,scanResult):
+        scanid = self.crud.insertIntoScan(scanResult.mac,scanResult.ip,scanResult.hostname,scanResult.date,scanResult.arguments,
+                                 scanResult.elapsed,scanResult.openports,scanResult.online,scanResult.osvendor,scanResult.osfamily,
+                                 scanResult.osgeneration,scanResult.osaccuracy,scanResult.hardvendor)
+        return scanid
+
+    def updateOrInsertPorts(self,scanResult):
+        if scanResult.ports:
+            for port in scanResult.ports:
+                tablePort = self.crud.selectAllFromPorts(port.port)
+                if tablePort == None:
+                    self.crud.insertIntoPorts(port.port,scanResult.date,scanResult.date,1)
+                else:
+                    self.crud.updatePort(port.port,scanResult.date)
 
     def updateOrInsertOSInfo(self,scanResult):
         if (scanResult.osvendor != None) and (scanResult.osfamily != None) and (scanResult.osgeneration != None):
