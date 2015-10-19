@@ -16,6 +16,26 @@ class TCRUD(unittest.TestCase):
 
     #todp: arguments, protocols
 
+    def test_ups(self):
+        ip="192.168.10.10"
+        mac="10:A4:AF:8C:EE:AA"
+        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        host ="Nanana"
+        scan=1
+
+        row=self.crud.selectAllFromUphostsById(1)
+        self.assertEqual(row,None)
+
+        id=self.crud.insertIntoUphosts(ip,host,mac,date,scan)
+
+        row=self.crud.selectAllFromUphostsById(id)
+        self.assertEqual(ip,row["ip"])
+        self.assertEqual(mac,row["mac"])
+        self.assertEqual(host,row["host"])
+        self.assertEqual(date,row["date"])
+        self.assertEqual(id,row["id"])
+        self.assertEqual(scan,row["scan"])
+
     def test_scanports(self):
         scan=2
         port=50

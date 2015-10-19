@@ -374,10 +374,6 @@ class CRUD:
         protocol = [self.columns["id"],self.columns["protocol"],self.columns["fds"],self.columns["lds"],self.columns["scanned"]]
         self.createTableIfNotExists(self.metapath,"protocols",protocol)
 
-
-
-
-
 #------------------- Arguments --------------------------
     def createTableArguments(self):
         argument = [self.columns["id"],self.columns["argument"],self.columns["fds"],self.columns["lds"],self.columns["scanned"]]
@@ -489,9 +485,13 @@ class CRUD:
         conn=sqlite3.connect(self.uptimepath)
         cursor=conn.execute("select * from ups where id=?",(id,))
         row = cursor.fetchone()
-        result = {"id":row[0],"ip":row[1],"host":row[2],"mac":row[3],"date":row[4],"scan":row[5]}
-        conn.close()
-        return result
+        if row == None:
+            conn.close()
+            return None
+        else:
+            result = {"id":row[0],"ip":row[1],"host":row[2],"mac":row[3],"date":row[4],"scan":row[5]}
+            conn.close()
+            return result
 
     def insertIntoUphosts(self,ip,host,mac,date,scan):
         conn=sqlite3.connect(self.uptimepath)
