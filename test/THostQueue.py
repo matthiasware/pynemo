@@ -4,8 +4,9 @@ import src
 class THostQueue (unittest.TestCase):
     def setUp(self):
         self.properties=src.Properties()
-        self.crud=src.CRUD(self.properties)
-        self.queue = src.HostQueue(self.properties,self.crud)
+        self.logger = src.Logger(self.properties)
+        self.crud=src.CRUD(self.properties,self.logger)
+        self.queue = src.HostQueue(self.properties,self.crud,self.logger)
 
         host_a = src.Host(mac="AB:BF:97:1A:F1:31",ip='192.168.10.0',hostname="a")
         host_b = src.Host(mac="BB:BF:97:1A:F1:31",ip="192.168.10.1",hostname="b")

@@ -4,8 +4,9 @@ import random
 
 class HostQueue:
 
-    def __init__(self,properties,crud):
+    def __init__(self,properties,crud,logger):
         self.crud=crud
+        self.logger=logger
         self.prperties=properties
         self.hostqueue = []
 
@@ -13,9 +14,11 @@ class HostQueue:
         return random.randint(0,100)
 
     def getHost(self):
+        print(len(self.hostqueue))
         if len(self.hostqueue) > 0:
             result = self.hostqueue[0][1]
             del self.hostqueue[0]
+            print(result.ip," : ",result.mac," : ",result.hostname)
             return result
         else:
             return None

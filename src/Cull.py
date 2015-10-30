@@ -15,7 +15,7 @@ class Cull:
 
     def setSweepScanResult(self,scan):
         hosts=self.butcher.processSweepScan(scan.nm)
-        self.hostQueue.updateAvailableHosts(hosts)
+        self.hostQueue.updateHostQueue(hosts)
 
     def getScan(self):
         host = self.hostQueue.getHost()
@@ -23,4 +23,4 @@ class Cull:
 
 
     def setScanResult(self, scan):
-        return None
+        self.butcher.processScan(scan.nm)
